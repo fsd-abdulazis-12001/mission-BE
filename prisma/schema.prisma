@@ -1,0 +1,237 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//ini mas saya sediakan link visualisai database diagramnya https://dbdiagram.io/d/WeBfilm-66fe9b9cfb079c7ebd3ae7fe
+
+// Definisi tabel User yang menyimpan informasi pengguna
+// Relasi: User memiliki relasi ke tabel DaftarSaya, Order, Paket, Pembayaran, dan WatchHistory
+model User {
+  id           Int            @id @default(autoincrement()) // Primary key dengan auto increment
+  email        String         @unique // Email harus unik
+  password     String
+  isAdmin      Boolean        @default(false) // Default nilai untuk isAdmin adalah false
+  name         String
+  createdAt    DateTime       @default(now()) // Timestamp kapan user dibuat
+  daftarSaya   DaftarSaya[]   // Relasi One-to-Many dengan tabel DaftarSaya
+  orders       Order[]        // Relasi One-to-Many dengan tabel Order
+  paket        Paket?         // Relasi One-to-One dengan tabel Paket
+  pembayaran   Pembayaran[]   // Relasi One-to-Many dengan tabel Pembayaran
+  watchHistory WatchHistory[] // Relasi One-to-Many dengan tabel WatchHistory
+}
+
+// Definisi tabel Order yang menyimpan informasi pesanan
+// Relasi: Setiap Order terkait dengan satu User
+model Order {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  total     Float
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id]) // Foreign key menghubungkan ke User
+}
+
+// Definisi tabel DaftarSaya untuk menyimpan daftar film/series favorit user
+// Relasi: Setiap DaftarSaya terkait dengan satu User
+model DaftarSaya {
+  id     Int     @id @default(autoincrement())
+  title  String
+  image  String
+  neweps Boolean
+  top10  Boolean
+  userId Int
+  user   User    @relation(fields: [userId], references: [id]) // Foreign key menghubungkan ke User
+}
+
+// Definisi tabel Pembayaran yang menyimpan informasi pembayaran
+// Relasi: Setiap Pembayaran terkait dengan satu User
+model Pembayaran {
+  id     Int    @id @default(autoincrement())
+  status String
+  amount Float
+  userId Int
+  user   User   @relation(fields: [userId], references: [id]) // Foreign key menghubungkan ke User
+}
+
+// Definisi tabel Paket yang menyimpan informasi paket langganan
+// Relasi: Setiap Paket terkait dengan satu User (One-to-One)
+model Paket {
+  id       Int     @id @default(autoincrement())
+  name     String
+  price    Float
+  isActive Boolean
+  userId   Int     @unique // Relasi unik ke User (One-to-One)
+  user     User    @relation(fields: [userId], references: [id]) // Foreign key menghubungkan ke User
+}
+
+// Definisi tabel Genres untuk menyimpan genre film/series
+// Relasi: Genres memiliki relasi dengan tabel MovieGenre dan SeriesGenre
+model Genres {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique // Genre harus unik
+  movieGenre  MovieGenre[]  // Relasi Many-to-Many dengan Movies melalui tabel MovieGenre
+  seriesGenre SeriesGenre[] // Relasi Many-to-Many dengan Series melalui tabel SeriesGenre
+}
+
+// Tabel penghubung (join table) antara Movies dan Genres
+model MovieGenre {
+  movieId Int
+  genreId Int
+  genre  Genres @relation(fields: [genreId], references: [id]) // Foreign key menghubungkan ke Genres
+  movie  Movies @relation(fields: [movieId], references: [id]) // Foreign key menghubungkan ke Movies
+
+  @@id([movieId, genreId]) // Composite primary key
+}
+
+// Tabel penghubung (join table) antara Series dan Genres
+model SeriesGenre {
+  seriesId Int
+  genreId  Int
+  genre   Genres @relation(fields: [genreId], references: [id]) // Foreign key menghubungkan ke Genres
+  serie   Series @relation(fields: [seriesId], references: [id]) // Foreign key menghubungkan ke Series
+
+  @@id([seriesId, genreId]) // Composite primary key
+}
+
+// Definisi tabel Category untuk menyimpan kategori film/series
+// Relasi: Setiap Category bisa memiliki banyak Movies dan Series
+model Category {
+  id    Int      @id @default(autoincrement())
+  name  String
+  movie Movies[] // Relasi One-to-Many dengan Movies
+  serie Series[] // Relasi One-to-Many dengan Series
+}
+
+// Definisi tabel Movies untuk menyimpan informasi film
+// Relasi: Movies memiliki relasi ke Category, MovieGenre, WatchHistory, dll.
+model Movies {
+  id               Int                @id @default(autoincrement())
+  style            String             @default("box")
+  rating           String             @default("4.5/5")
+  duration         Int                @default(120)
+  title            String
+  image            String             @default("https://placehold.co/500x800/png")
+  neweps           Boolean            @default(true)
+  top10            Boolean            @default(true)
+  label            String             @default("none")
+  categoryId       Int                // Foreign key ke Category
+  movieGenre       MovieGenre[]       // Relasi Many-to-Many dengan Genres melalui MovieGenre
+  movieNewReleases MovieNewReleases[] // Relasi One-to-Many untuk rilisan baru
+  movieTopRatings  MovieTopRatings[]  // Relasi One-to-Many untuk top rating
+  trendingMovies   MovieTrendings[]   // Relasi One-to-Many untuk trending
+  category         Category           @relation(fields: [categoryId], references: [id]) // Foreign key menghubungkan ke Category
+  watchHistory     WatchHistory[]     // Relasi One-to-Many dengan WatchHistory
+}
+
+// Definisi tabel MovieTrendings untuk menyimpan film yang sedang trending
+model MovieTrendings {
+  id        Int      @id @default(autoincrement())
+  movieId   Int      // Foreign key ke Movies
+  createdAt DateTime @default(now())
+  movie     Movies   @relation(fields: [movieId], references: [id]) // Foreign key menghubungkan ke Movies
+}
+
+// Definisi tabel MovieNewReleases untuk menyimpan film yang baru dirilis
+model MovieNewReleases {
+  id        Int      @id @default(autoincrement())
+  movieId   Int      // Foreign key ke Movies
+  createdAt DateTime @default(now())
+  movie     Movies   @relation(fields: [movieId], references: [id]) // Foreign key menghubungkan ke Movies
+}
+
+// Definisi tabel MovieTopRatings untuk menyimpan film dengan rating tertinggi
+model MovieTopRatings {
+  id        Int      @id @default(autoincrement())
+  movieId   Int      // Foreign key ke Movies
+  createdAt DateTime @default(now())
+  movie     Movies   @relation(fields: [movieId], references: [id]) // Foreign key menghubungkan ke Movies
+}
+
+// Definisi tabel Series untuk menyimpan informasi series
+// Relasi: Series memiliki relasi ke Category, SeriesGenre, WatchHistory, dll.
+model Series {
+  id               Int                @id @default(autoincrement())
+  style            String             @default("box")
+  rating           String             @default("4.5/5")
+  duration         Int                @default(120)
+  title            String
+  image            String             @default("https://placehold.co/500x800/png")
+  neweps           Boolean            @default(true)
+  top10            Boolean            @default(true)
+  label            String             @default("none")
+  totaleps         Int                @default(12)
+  categoryId       Int                // Foreign key ke Category
+  serieNewReleases SerieNewReleases[] // Relasi One-to-Many untuk rilisan baru
+  serieTopRatings  SerieTopRatings[]  // Relasi One-to-Many untuk top rating
+  serieTrendings   SerieTrendings[]   // Relasi One-to-Many untuk trending
+  seriePersembahanChill SeriePersembahanChill[] // Relasi One-to-Many untuk persembahan chill
+  category         Category           @relation(fields: [categoryId], references: [id]) // Foreign key menghubungkan ke Category
+  seriesGenre      SeriesGenre[]      // Relasi Many-to-Many dengan Genres melalui SeriesGenre
+  watchHistory     WatchHistory[]     // Relasi One-to-Many dengan WatchHistory
+}
+
+// Definisi tabel SerieTrendings untuk menyimpan series yang sedang trending
+model SerieTrendings {
+  id        Int      @id @default(autoincrement())
+  serieId   Int      // Foreign key ke Series
+  serie     Series   @relation(fields: [serieId], references: [id]) // Foreign key menghubungkan ke Series
+  createdAt DateTime @default(now())
+}
+
+// Definisi tabel SeriePersembahanChill untuk menyimpan series persembahan chill
+model SeriePersembahanChill {
+  id        Int      @id @default(autoincrement())
+  serieId   Int      // Foreign key ke Series
+  serie     Series   @relation(fields: [serieId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+// Definisi tabel SerieNewReleases untuk menyimpan series yang baru dirilis
+model SerieNewReleases {
+  id        Int      @id @default(autoincrement())
+  serieId   Int      // Foreign key ke Series
+  serie     Series   @relation(fields: [serieId], references: [id]) // Foreign key menghubungkan ke Series
+  createdAt DateTime @default(now())
+}
+
+// Definisi tabel SerieTopRatings untuk menyimpan series dengan rating tertinggi
+model SerieTopRatings {
+  id        Int      @id @default(autoincrement())
+  serieId   Int      // Foreign key ke Series
+  serie     Series   @relation(fields: [serieId], references: [id]) // Foreign key menghubungkan ke Series
+  createdAt DateTime @default(now())
+}
+
+// Definisi tabel WatchHistory untuk menyimpan riwayat tontonan user
+// Relasi: Setiap WatchHistory terkait dengan User, Movies, dan Series
+model WatchHistory {
+  id             Int     @id @default(autoincrement())
+  userId         Int     // Foreign key ke User
+  movieId        Int?    // Foreign key ke Movies (opsional)
+  seriesId       Int?    // Foreign key ke Series (opsional)
+  currentEpisode Int?    @default(2) // Episode terakhir yang ditonton untuk series
+  progress       Float   @default(50) // Progress dalam persen
+  isFinished     Boolean @default(false) // Status apakah sudah selesai ditonton
+  movie          Movies? @relation(fields: [movieId], references: [id]) // Foreign key menghubungkan ke Movies
+  serie          Series? @relation(fields: [seriesId], references: [id]) // Foreign key menghubungkan ke Series
+  user           User    @relation(fields: [userId], references: [id]) // Foreign key menghubungkan ke User
+}
+
+model Episodes {
+  id              Int     @id @default(autoincrement())
+  episode         String
+  image           String
+  filmname        String
+  duration        String
+  filmdescription String
+  neweps          Boolean
+  top10           Boolean
+}

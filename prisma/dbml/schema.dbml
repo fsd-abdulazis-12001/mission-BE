@@ -1,0 +1,241 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table User {
+  id Int [pk, increment]
+  email String [unique, not null]
+  password String [not null]
+  isAdmin Boolean [not null, default: false]
+  name String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  daftarSaya DaftarSaya [not null]
+  orders Order [not null]
+  paket Paket
+  pembayaran Pembayaran [not null]
+  watchHistory WatchHistory [not null]
+}
+
+Table Order {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  total Float [not null]
+  userId Int [not null]
+  user User [not null]
+}
+
+Table DaftarSaya {
+  id Int [pk, increment]
+  title String [not null]
+  image String [not null]
+  neweps Boolean [not null]
+  top10 Boolean [not null]
+  userId Int [not null]
+  user User [not null]
+}
+
+Table Pembayaran {
+  id Int [pk, increment]
+  status String [not null]
+  amount Float [not null]
+  userId Int [not null]
+  user User [not null]
+}
+
+Table Paket {
+  id Int [pk, increment]
+  name String [not null]
+  price Float [not null]
+  isActive Boolean [not null]
+  userId Int [unique, not null]
+  user User [not null]
+}
+
+Table Genres {
+  id Int [pk, increment]
+  name String [unique, not null]
+  movieGenre MovieGenre [not null]
+  seriesGenre SeriesGenre [not null]
+}
+
+Table MovieGenre {
+  movieId Int [not null]
+  genreId Int [not null]
+  genre Genres [not null]
+  movie Movies [not null]
+
+  indexes {
+    (movieId, genreId) [pk]
+  }
+}
+
+Table SeriesGenre {
+  seriesId Int [not null]
+  genreId Int [not null]
+  genre Genres [not null]
+  serie Series [not null]
+
+  indexes {
+    (seriesId, genreId) [pk]
+  }
+}
+
+Table Category {
+  id Int [pk, increment]
+  name String [not null]
+  movie Movies [not null]
+  serie Series [not null]
+}
+
+Table Movies {
+  id Int [pk, increment]
+  style String [not null, default: 'box']
+  rating String [not null, default: '4.5/5']
+  duration Int [not null, default: 120]
+  title String [not null]
+  image String [not null, default: 'https://placehold.co/500x800/png']
+  neweps Boolean [not null, default: true]
+  top10 Boolean [not null, default: true]
+  label String [not null, default: 'none']
+  categoryId Int [not null]
+  movieGenre MovieGenre [not null]
+  movieNewReleases MovieNewReleases [not null]
+  movieTopRatings MovieTopRatings [not null]
+  trendingMovies MovieTrendings [not null]
+  category Category [not null]
+  watchHistory WatchHistory [not null]
+}
+
+Table MovieTrendings {
+  id Int [pk, increment]
+  movieId Int [not null]
+  createdAt DateTime [default: `now()`, not null]
+  movie Movies [not null]
+}
+
+Table MovieNewReleases {
+  id Int [pk, increment]
+  movieId Int [not null]
+  createdAt DateTime [default: `now()`, not null]
+  movie Movies [not null]
+}
+
+Table MovieTopRatings {
+  id Int [pk, increment]
+  movieId Int [not null]
+  createdAt DateTime [default: `now()`, not null]
+  movie Movies [not null]
+}
+
+Table Series {
+  id Int [pk, increment]
+  style String [not null, default: 'box']
+  rating String [not null, default: '4.5/5']
+  duration Int [not null, default: 120]
+  title String [not null]
+  image String [not null, default: 'https://placehold.co/500x800/png']
+  neweps Boolean [not null, default: true]
+  top10 Boolean [not null, default: true]
+  label String [not null, default: 'none']
+  totaleps Int [not null, default: 12]
+  categoryId Int [not null]
+  serieNewReleases SerieNewReleases [not null]
+  serieTopRatings SerieTopRatings [not null]
+  serieTrendings SerieTrendings [not null]
+  seriePersembahanChill SeriePersembahanChill [not null]
+  category Category [not null]
+  seriesGenre SeriesGenre [not null]
+  watchHistory WatchHistory [not null]
+}
+
+Table SerieTrendings {
+  id Int [pk, increment]
+  serieId Int [not null]
+  serie Series [not null]
+  createdAt DateTime [default: `now()`, not null]
+}
+
+Table SeriePersembahanChill {
+  id Int [pk, increment]
+  serieId Int [not null]
+  serie Series [not null]
+  createdAt DateTime [default: `now()`, not null]
+}
+
+Table SerieNewReleases {
+  id Int [pk, increment]
+  serieId Int [not null]
+  serie Series [not null]
+  createdAt DateTime [default: `now()`, not null]
+}
+
+Table SerieTopRatings {
+  id Int [pk, increment]
+  serieId Int [not null]
+  serie Series [not null]
+  createdAt DateTime [default: `now()`, not null]
+}
+
+Table WatchHistory {
+  id Int [pk, increment]
+  userId Int [not null]
+  movieId Int
+  seriesId Int
+  currentEpisode Int [default: 2]
+  progress Float [not null, default: 50]
+  isFinished Boolean [not null, default: false]
+  movie Movies
+  serie Series
+  user User [not null]
+}
+
+Table Episodes {
+  id Int [pk, increment]
+  episode String [not null]
+  image String [not null]
+  filmname String [not null]
+  duration String [not null]
+  filmdescription String [not null]
+  neweps Boolean [not null]
+  top10 Boolean [not null]
+}
+
+Ref: Order.userId > User.id
+
+Ref: DaftarSaya.userId > User.id
+
+Ref: Pembayaran.userId > User.id
+
+Ref: Paket.userId - User.id
+
+Ref: MovieGenre.genreId > Genres.id
+
+Ref: MovieGenre.movieId > Movies.id
+
+Ref: SeriesGenre.genreId > Genres.id
+
+Ref: SeriesGenre.seriesId > Series.id
+
+Ref: Movies.categoryId > Category.id
+
+Ref: MovieTrendings.movieId > Movies.id
+
+Ref: MovieNewReleases.movieId > Movies.id
+
+Ref: MovieTopRatings.movieId > Movies.id
+
+Ref: Series.categoryId > Category.id
+
+Ref: SerieTrendings.serieId > Series.id
+
+Ref: SeriePersembahanChill.serieId > Series.id
+
+Ref: SerieNewReleases.serieId > Series.id
+
+Ref: SerieTopRatings.serieId > Series.id
+
+Ref: WatchHistory.movieId > Movies.id
+
+Ref: WatchHistory.seriesId > Series.id
+
+Ref: WatchHistory.userId > User.id
