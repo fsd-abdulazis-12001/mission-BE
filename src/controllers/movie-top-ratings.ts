@@ -4,15 +4,34 @@ import { NextFunction, Request, Response } from 'express';
  
 export const getMovieTopRatings = async (req: Request, res: Response, next: NextFunction) => {
 
-    const movieTopRatings = await prismaClient.movieTopRatings.findMany({
+  const movieTopRatings = await prismaClient.movieTopRatings.findMany({
+    include: {
+      movie: {
         include: {
-          movie: true, // mengambil semua field movie
+          movieGenre: {
+            include: {
+              genre: true,  // Fetch the genres linked through the MovieGenre table
+            },
+          },
+          category: true,  // Fetch the category linked to the movie via categoryId
         },
-      });
-    // extrak data movie
-    const movies = movieTopRatings.map((topratings) => topratings.movie);
+      },
+    },
+  });
 
-    res.json(movies);
+  // Transform the movie data to include genres as an array and category name
+  const movies = movieTopRatings.map((data) => {
+    const movie = data.movie;
+    const genres = movie.movieGenre.map((mg) => mg.genre.name); // Extract genre names from MovieGenre
+
+    return {
+      ...movie,              // Spread the existing movie fields
+      genres: genres,        // Add genres array
+      category: movie.category ? movie.category.name : null,  // Add category name if it exists
+    };
+  });
+
+  res.json(movies);  // Return the transformed movie data with genres and category
   
  }
 

@@ -8,12 +8,17 @@ import { any } from "zod"
 import { RequestCustom } from "../interfaces/request-custom"
 
 const authMiddleware =  async(req: RequestCustom, res: Response, next: NextFunction) => { 
-    const token = req.headers.authorization
-    if (!token) {
-       next(new UnauthorizedException('User not logged in', ErrorCode.UNAUTHORIZED))
-       return
-    }
-
+    const authHeader = req.headers.authorization
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        if (req.isAuthenticated()) {
+          // If the user is authenticated via OAuth, proceed
+          next();
+        } else {
+          next(new UnauthorizedException('User not logged in', ErrorCode.UNAUTHORIZED));
+        }
+        return;
+      }
+    const token = authHeader.split(' ')[1];
     try {
         const payload  = jwt.verify(token,JWT_SECRET) as any
         const user = await prismaClient.user.findUnique({

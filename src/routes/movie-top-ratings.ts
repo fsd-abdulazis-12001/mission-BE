@@ -6,5 +6,4 @@ const movieTopRatingsRouter:Router = Router();
 
 movieTopRatingsRouter.get("/movieTopRatings", errorHandler(getMovieTopRatings));
 
-
 export default movieTopRatingsRouter

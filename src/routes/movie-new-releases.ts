@@ -6,5 +6,4 @@ const filmsTrendingMoviesRouter:Router = Router();
 
 filmsTrendingMoviesRouter.get("/movieNewReleases", errorHandler(getmovieNewReleases));
  
-
 export default filmsTrendingMoviesRouter

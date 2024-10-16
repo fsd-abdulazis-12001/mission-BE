@@ -9,7 +9,13 @@ import serieTopRatingsRouter from "./serie-top-ratings";
 import serieTrendingRouter from "./serie-trendings";
 import seriePersembahanChillsRouter from "./serie-persembahanchills";
 
+import watchHistoryRouter from "./watch-history";
+
+import daftarSayaRouter from "./daftarSayaRouter";
+
 import genresRouter from "./genres";
+
+
 
 const rootRouter:Router = Router();
 
@@ -26,6 +32,9 @@ rootRouter.use(seriePersembahanChillsRouter)
 
 rootRouter.use(genresRouter)
 
+rootRouter.use(watchHistoryRouter)
+
+rootRouter.use(daftarSayaRouter)
 
 
 

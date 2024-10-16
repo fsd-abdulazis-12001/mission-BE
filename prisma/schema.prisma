@@ -21,6 +21,11 @@ model User {
   password     String
   isAdmin      Boolean        @default(false) // Default nilai untuk isAdmin adalah false
   name         String
+  profileImage  String        @default("nan")
+  googleId     String?        @default("")   // Store Google ID for OAuth users
+  facebookId   String?        @default("")// Store Facebook ID for OAuth users
+  authProvider String?        @default("") // Store the provider (e.g., 'google', 'facebook')
+
   createdAt    DateTime       @default(now()) // Timestamp kapan user dibuat
   daftarSaya   DaftarSaya[]   // Relasi One-to-Many dengan tabel DaftarSaya
   orders       Order[]        // Relasi One-to-Many dengan tabel Order
@@ -118,6 +123,7 @@ model Movies {
   rating           String             @default("4.5/5")
   duration         Int                @default(120)
   title            String
+  
   image            String             @default("https://placehold.co/500x800/png")
   neweps           Boolean            @default(true)
   top10            Boolean            @default(true)
