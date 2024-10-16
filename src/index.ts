@@ -1,7 +1,7 @@
 import  express , { Express , Request , response, Response} from "express";
 const cors = require('cors');
 import { PrismaClient } from "@prisma/client";
-
+import { FE_BASE_URL } from "./secret";
 
 
 
@@ -16,9 +16,9 @@ const app:Express = express();
 
 app.use(express.json())
 const corsOptions = {
-    origin: 'http://localhost:5173', // Your frontend's origin
+    origin: FE_BASE_URL,  
     methods: 'GET,POST,PUT,DELETE',
-    credentials: true // Allow cookies or authorization headers
+    credentials: true  
   };
   
   app.use(cors(corsOptions));

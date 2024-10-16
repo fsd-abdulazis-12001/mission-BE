@@ -20,6 +20,7 @@ const client = new OAuth2Client(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET);
  
 
 export const googleLoginCallBack = async (req: Request, res: Response, next: NextFunction) => {
+     //tidak perlu pake try-catch karena sudah di wrap pake error-handler high-level functions
     const {code} = req.body
     if (!code) {
         throw new BadRequestException("Missing code", ErrorCode.MISSING_REQUIRED_FIELDS)
@@ -109,6 +110,7 @@ export const signup = async (req: Request, res: Response,next: NextFunction) => 
 
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
+     //tidak perlu pake try-catch karena sudah di wrap pake error-handler high-level functions
     const {email, password} = req.body
 
     let user = await prismaClient.user.findFirst({

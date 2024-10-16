@@ -5,11 +5,68 @@ import { BadRequestException } from '../exceptions/bad-request';
 import { RequestCustom } from '../interfaces/request-custom';
 import { ErrorCode } from '../exceptions/root';
 
-// Controller to add to watch history
+interface Genre {
+    id: number;
+    name: string;
+  }
+  
+  interface MovieGenre {
+    genre: Genre;
+  }
+  
+  interface SeriesGenre {
+    genre: Genre;
+  }
+  interface Category {
+    id: number;
+    name: string;
+  }
+  
+  interface Movie {
+    id: number;
+    title: string;
+    image: string;
+    neweps: boolean;
+    top10: boolean;
+    style: string;
+    rating: string;
+    duration: number;
+    label: string;
+    category: Category | null;
+    movieGenre: MovieGenre[];
+  }
+  
+  interface Series {
+    id: number;
+    title: string;
+    image: string;
+    neweps: boolean;
+    top10: boolean;
+    style: string;
+    rating: string;
+    duration: number;
+    label: string;
+    totaleps: number;
+    category: Category | null;
+    seriesGenre: SeriesGenre[];
+  }
+  
+  interface WatchHistoryData {
+    id: number;
+    userId: number;
+    movieId: number | null;
+    seriesId: number | null;
+    currentEpisode: number | null;
+    progress: number;
+    isFinished: boolean;
+    movie?: Movie | null;
+    serie?: Series | null;
+  }
+
 export const addToWatchHistory = async (req: RequestCustom, res: Response, next: NextFunction) => {
     const { movieId, seriesId, currentEpisode, progress, isFinished } = req.body;
     console.log(req.body);
-    // Ensure that either movieId or seriesId is provided
+
     if (!movieId && !seriesId) {
         throw new BadRequestException("You must provide either movieId or seriesId", ErrorCode.MISSING_REQUIRED_FIELDS);
     }
@@ -17,7 +74,7 @@ export const addToWatchHistory = async (req: RequestCustom, res: Response, next:
     let movie = null;
     let series = null;
 
-    // Validate the movie if movieId is provided
+
     if (movieId) {
         movie = await prismaClient.movies.findUnique({
             where: { id: movieId }
@@ -27,7 +84,7 @@ export const addToWatchHistory = async (req: RequestCustom, res: Response, next:
         }
     }
 
-    // Validate the series if seriesId is provided
+   
     if (seriesId) {
         
         series = await prismaClient.series.findUnique({
@@ -39,7 +96,7 @@ export const addToWatchHistory = async (req: RequestCustom, res: Response, next:
        
     }
 
-    // Check for existing watch history to avoid duplicates
+
     const existingHistory = await prismaClient.watchHistory.findFirst({
         where: {
             userId: req.user?.id,
@@ -54,7 +111,7 @@ export const addToWatchHistory = async (req: RequestCustom, res: Response, next:
         throw new BadRequestException("This item is already in the watch history", ErrorCode.ITEM_ALREADY_IN_WATCH_HISTORY);
     }
 
-    // Add to watch history
+    
     const watchHistory = await prismaClient.watchHistory.create({
         data: {
             userId: req.user?.id,
@@ -71,71 +128,71 @@ export const addToWatchHistory = async (req: RequestCustom, res: Response, next:
 
 
 export const getWatchHistory = async (req: RequestCustom, res: Response, next: NextFunction) => {
-    // Check if the user is authenticated
+    
     if (!req.user || !req.user.id) {
         throw new NotFoundException("User not found", ErrorCode.USER_NOT_FOUND)
     }
 
 
-        // Fetch watch history with related movies and series including genres and category
+       
         const watchHistory = await prismaClient.watchHistory.findMany({
             where: {
-                userId: req.user.id, // Get the watch history for the logged-in user
+                userId: req.user.id,  
             },
             include: {
                 movie: {
                     include: {
                         movieGenre: {
                             include: {
-                                genre: true,  // Fetch the genres linked through the MovieGenre table
+                                genre: true,  
                             },
                         },
-                        category: true,  // Fetch the category linked to the movie via categoryId
+                        category: true,   
                     },
                 },
                 serie: {
                     include: {
                         seriesGenre: {
                             include: {
-                                genre: true,  // Fetch the genres linked through the SeriesGenre table
+                                genre: true,  
                             },
                         },
-                        category: true,  // Fetch the category linked to the series via categoryId
+                        category: true,   
                     },
                 },
             },
         });
 
-       // Transform the watch history data for movies and series
-       const result = watchHistory.map((data) => {
+        
+       const result = watchHistory.map((data : WatchHistoryData) => {
         if (data.movie) {
             const movie = data.movie;
-            const genres = movie.movieGenre.map((mg) => mg.genre.name); // Extract genre names from MovieGenre
+            const genres = movie.movieGenre.map((mg : MovieGenre) => mg.genre.name);  
 
             return {
-                watchHistoryId: data.id,  // Keep the watch history id
-                type: "movie",  // Indicate that this is a movie
-                movieId: movie.id,  // Use a separate movieId to avoid conflict
-                ...movie,              // Spread the existing movie fields (excluding 'id')
+                watchHistoryId: data.id,  
+                type: "movie",   
+                movieId: movie.id,  
+                ...movie,              
                 style: "box",  
-                genres: genres,        // Add genres array
-                category: movie.category ? movie.category.name : null,  // Add category name if it exists
+                genres: genres,         
+                category: movie.category ? movie.category.name : null,   
                 progress: data.progress,
                 isFinished: data.isFinished
             };
         } else if (data.serie) {
             const serie = data.serie;
-            const genres = serie.seriesGenre.map((sg) => sg.genre.name); // Extract genre names from SeriesGenre
+            const genres = serie.seriesGenre.map((sg : SeriesGenre) => sg.genre.name);  
 
             return {
-                watchHistoryId: data.id,  // Keep the watch history id
-                type: "series",  // Indicate that this is a series
-                serieId: serie.id,  // Use a separate serieId to avoid conflict
-                ...serie,              // Spread the existing series fields (excluding 'id')
+                watchHistoryId: data.id,  
+                type: "series",   
+                serieId: serie.id,  
+                ...serie,               
                 style: "box",  
-                genres: genres,        // Add genres array
-                eps: "Episode " + serie.totaleps,  // Add episode info (optional)
-                category: serie.category ? serie.category.name : null,  // Add category name if it exists
+                genres: genres,        
+                eps: "Episode " + serie.totaleps,   
+                category: serie.category ? serie.category.name : null,   
                 progress: data.progress,
                 isFinished: data.isFinished,
                 currentEpisode: data.currentEpisode || 1
@@ -144,7 +201,7 @@ export const getWatchHistory = async (req: RequestCustom, res: Response, next: N
         return null;
     });
 
-        // Filter out null values and send the transformed data
-        res.json(result.filter(item => item !== null));
+        
+    res.json(result.filter((item: Record<string, any> | null) => item !== null));
 
 };

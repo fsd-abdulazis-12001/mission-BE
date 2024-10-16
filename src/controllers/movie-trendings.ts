@@ -1,7 +1,36 @@
 import { prismaClient } from '../index';
 import { NextFunction, Request, Response } from 'express';
  
- 
+interface Genre {
+  name: string;
+}
+
+interface MovieGenre {
+  genre: Genre;
+}
+
+interface Category {
+  name: string;
+}
+
+interface Movie {
+  id: number;
+  title: string;
+  image: string;
+  neweps: boolean;
+  top10: boolean;
+  style: string;
+  rating: string;
+  duration: number;
+  label: string;
+  category: Category | null;
+  movieGenre: MovieGenre[];
+}
+
+interface MovieTrendingData {
+  movie: Movie;
+}
+
 export const getmovieTrendings = async (req: Request, res: Response, next: NextFunction) => {
 
  
@@ -11,28 +40,28 @@ export const getmovieTrendings = async (req: Request, res: Response, next: NextF
         include: {
           movieGenre: {
             include: {
-              genre: true,  // Fetch the genres linked through the MovieGenre table
+              genre: true,  
             },
           },
-          category: true,  // Fetch the category linked to the movie via categoryId
+          category: true,   
         },
       },
     },
   });
 
-  // Transform the movie data to include genres as an array and category name
-  const movies = movieTrendings.map((data) => {
+   
+  const movies = movieTrendings.map((data: MovieTrendingData) => {
     const movie = data.movie;
-    const genres = movie.movieGenre.map((mg) => mg.genre.name); // Extract genre names from MovieGenre
+    const genres = movie.movieGenre.map((mg : MovieGenre) => mg.genre.name); 
 
     return {
-      ...movie,              // Spread the existing movie fields
-      genres: genres,        // Add genres array
-      category: movie.category ? movie.category.name : null,  // Add category name if it exists
+      ...movie,              
+      genres: genres,         
+      category: movie.category ? movie.category.name : null, 
     };
   });
 
-  res.json(movies);  // Return the transformed movie data with genres and category
+  res.json(movies);   
   
  }
 

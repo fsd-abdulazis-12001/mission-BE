@@ -1,7 +1,36 @@
 import { prismaClient } from '../index';
 import { NextFunction, Request, Response } from 'express';
  
- 
+interface Release {
+  movie: {
+    id: number;
+    style: string;
+    rating: string;
+    duration: number;
+    category: {
+      id: number;
+      name: string;
+    } | null;
+    movieGenre: {
+      genre: {
+        id: number;
+        name: string;
+      };
+      movieId: number;
+      genreId: number;
+    }[];
+  };
+}
+
+
+interface MovieGenre {
+  genre: {
+    id: number;
+    name: string;
+  };
+  movieId: number;
+  genreId: number;
+}
 export const getmovieNewReleases = async (req: Request, res: Response, next: NextFunction) => {
     const movieNewReleases = await prismaClient.movieNewReleases.findMany({
       include: {
@@ -9,28 +38,28 @@ export const getmovieNewReleases = async (req: Request, res: Response, next: Nex
           include: {
             movieGenre: {
               include: {
-                genre: true,  // Fetch the genres linked through the MovieGenre table
+                genre: true,  
               },
             },
-            category: true,  // Fetch the category linked to the movie via categoryId
+            category: true,  
           },
         },
       },
     });
 
-    // Transform the movie data to include genres as an array and category name
-    const movies = movieNewReleases.map((release) => {
+     
+    const movies = movieNewReleases.map((release : Release) => {
       const movie = release.movie;
-      const genres = movie.movieGenre.map((mg) => mg.genre.name); // Extract genre names from MovieGenre
+      const genres = movie.movieGenre.map((mg : MovieGenre) => mg.genre.name);  
 
       return {
-        ...movie,              // Spread the existing movie fields
-        genres: genres,        // Add genres array
-        category: movie.category ? movie.category.name : null,  // Add category name if it exists
+        ...movie,              
+        genres: genres,       
+        category: movie.category ? movie.category.name : null,  
       };
     });
 
-    res.json(movies);  // Return the transformed movie data with genres and category
+    res.json(movies);   
  
 };
 

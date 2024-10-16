@@ -1,7 +1,36 @@
 import { prismaClient } from '../index';
 import { NextFunction, Request, Response } from 'express';
  
- 
+interface Genre {
+  name: string;
+}
+
+interface SeriesGenre {
+  genre: Genre;
+}
+
+interface Category {
+  name: string;
+}
+
+interface Series {
+  id: number;
+  title: string;
+  image: string;
+  neweps: boolean;
+  top10: boolean;
+  style: string;
+  rating: string;
+  duration: number;
+  label: string;
+  totaleps: number;
+  category: Category | null;
+  seriesGenre: SeriesGenre[];
+}
+
+interface SerieNewReleasesData {
+  serie: Series;
+}
 export const getSerieNewReleases = async (req: Request, res: Response, next: NextFunction) => {
 
   const serieNewReleases = await prismaClient.serieNewReleases.findMany({
@@ -10,29 +39,29 @@ export const getSerieNewReleases = async (req: Request, res: Response, next: Nex
         include: {
           seriesGenre: {
             include: {
-              genre: true,  // Fetch the genres linked through the MovieGenre table
+              genre: true,   
             },
           },
-          category: true,  // Fetch the category linked to the movie via categoryId
+          category: true,   
         },
       },
     },
   });
 
-  // Transform the movie data to include genres as an array and category name
-  const series = serieNewReleases.map((data) => {
+  
+  const series = serieNewReleases.map((data : SerieNewReleasesData) => {
     const serie = data.serie;
-    const genres = serie.seriesGenre.map((mg) => mg.genre.name); // Extract genre names from MovieGenre
+    const genres = serie.seriesGenre.map((sg : SeriesGenre) => sg.genre.name);  
 
     return {
-      ...serie,              // Spread the existing movie fields
-      genres: genres,        // Add genres array
+      ...serie,              
+      genres: genres,       
       eps: "Episode " + serie.totaleps,  
-      category: serie.category ? serie.category.name : null,  // Add category name if it exists
+      category: serie.category ? serie.category.name : null,   
     };
   });
 
-  res.json(series);  // Return the transformed movie data with genres and category
+  res.json(series);   
   
   
  }
