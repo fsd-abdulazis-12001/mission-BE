@@ -5,8 +5,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "npx nodemon api/api.ts",
-    "vercel-build": "npx prisma db push && npx prisma generate && next build",
-    "build": "npx prisma db push && npx prisma generate && next build"
+    "vercel-build": "echo hello",
+    "build": "next build",
+    "prebuild":"npx prisma db push && npx prisma generate"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
