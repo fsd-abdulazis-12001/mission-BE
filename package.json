@@ -7,7 +7,6 @@
     "dev": "npx nodemon api/api.ts",
     "vercel-build": "echo hello",
     "build": "next build",
-    "prebuild":"npx prisma db push && npx prisma generate",
     "postinstall":"npx prisma generate"
   },
   "prisma": {

@@ -64,6 +64,39 @@ export const removeFromDaftarSaya = async (req: RequestCustom, res: Response, ne
     res.status(200).json({ message: 'Item successfully removed from DaftarSaya' });
 };
 
+export const editDaftarSaya = async (req: RequestCustom, res: Response, next: NextFunction) => {
+    const { daftarSayaId } = req.params;
+    const { image } = req.body;
+
+    if (!daftarSayaId) {
+        throw new BadRequestException("Missing required field: daftarSayaId", ErrorCode.MISSING_REQUIRED_FIELDS);
+    }
+
+    // Check if the item exists in "DaftarSaya"
+    const existingItem = await prismaClient.daftarSaya.findUnique({
+        where: {
+            id: parseInt(daftarSayaId),
+        },
+    });
+
+    if (!existingItem || existingItem.userId !== req.user?.id) {        
+        throw new NotFoundException("Item not found in DaftarSaya or unauthorized", ErrorCode.ITEM_NOT_FOUND);
+    }        
+
+    // Update the item in "DaftarSaya"
+    const updatedItem = await prismaClient.daftarSaya.update({
+        where: { id: parseInt(daftarSayaId) },
+        data: {
+            image: image || existingItem.image
+        },
+    });    
+
+    res.status(200).json({  
+        message: 'Item successfully updated in DaftarSaya',
+        data: updatedItem,  
+    })
+}
+
 export const getDaftarSaya = async (req: RequestCustom, res: Response, next: NextFunction) => {
     if (!req.user || !req.user.id) {
         throw new NotFoundException("User not found", ErrorCode.USER_NOT_FOUND);
