@@ -8,6 +8,10 @@ export const PORT = process.env.PORT || 3000;
 export const ORIGIN = process.env.ORIGIN || "http://localhost:3000";
 export const DATABASE_URL = process.env.DATABASE_URL;
 export const FE_BASE_URL = process.env.FE_BASE_URL || "http://localhost:5173";
+export const EMAIL_HOST = process.env.EMAIL_HOST || "";
+export const EMAIL_USERNAME = process.env.EMAIL_USERNAME || "";
+export const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD || "";
+export const NODEMAILER_TOKEN = process.env.NODEMAILER_TOKEN || "";
 
 
  

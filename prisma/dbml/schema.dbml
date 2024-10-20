@@ -12,6 +12,7 @@ Table User {
   googleId String [default: '']
   facebookId String [default: '']
   authProvider String [default: '']
+  isActive Boolean [not null, default: false]
   createdAt DateTime [default: `now()`, not null]
   daftarSaya DaftarSaya [not null]
   orders Order [not null]

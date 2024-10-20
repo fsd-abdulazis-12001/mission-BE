@@ -25,7 +25,7 @@ model User {
   googleId     String?        @default("")   // Store Google ID for OAuth users
   facebookId   String?        @default("")// Store Facebook ID for OAuth users
   authProvider String?        @default("") // Store the provider (e.g., 'google', 'facebook')
-
+  isActive     Boolean        @default(false)
   createdAt    DateTime       @default(now()) // Timestamp kapan user dibuat
   daftarSaya   DaftarSaya[]   // Relasi One-to-Many dengan tabel DaftarSaya
   orders       Order[]        // Relasi One-to-Many dengan tabel Order

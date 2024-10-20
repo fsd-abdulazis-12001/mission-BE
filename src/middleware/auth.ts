@@ -10,14 +10,9 @@ import { RequestCustom } from "../interfaces/request-custom"
 const authMiddleware =  async(req: RequestCustom, res: Response, next: NextFunction) => { 
     const authHeader = req.headers.authorization
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        if (req.isAuthenticated()) {
-          // If the user is authenticated via OAuth, proceed
-          next();
-        } else {
-          next(new UnauthorizedException('User not logged in', ErrorCode.UNAUTHORIZED));
-        }
-        return;
-      }
+      // No JWT token provided, unauthorized
+      return next(new UnauthorizedException('User not logged in', ErrorCode.UNAUTHORIZED));
+    }
     const token = authHeader.split(' ')[1];
     try {
         const payload  = jwt.verify(token,JWT_SECRET) as any
