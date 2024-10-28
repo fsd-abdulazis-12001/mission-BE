@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
 export const sendVerificationEmail = async (email: string, verificationLink: string) => {
   console.log({EMAIL_HOST, EMAIL_USERNAME, EMAIL_PASSWORD});
   const defaulMailOptions =  {
-    from: '"Abdul Azis 21001" <no-reply@kulijawa.online>', 
+    from: '"Abdul Azis 21001" <grover.durgan58@ethereal.email>', 
     to: email, 
     subject: 'Email Verification', 
     text: "Email Verification",
