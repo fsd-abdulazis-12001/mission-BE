@@ -8,11 +8,11 @@ export const PORT = process.env.PORT || 3000;
 export const ORIGIN = process.env.ORIGIN || "http://localhost:3000";
 export const DATABASE_URL = process.env.DATABASE_URL;
 export const FE_BASE_URL = process.env.FE_BASE_URL || "http://localhost:5173";
-export const EMAIL_HOST = process.env.VERCEL_EMAIL_HOST || "smtp.ethereal.email";
-export const EMAIL_USERNAME = process.env.VERCEL_EMAIL_USERNAME || "grover.durgan58@ethereal.email";
-export const EMAIL_PASSWORD = process.env.VERCEL_EMAIL_PASSWORD || "4EaewtgwB9JJjDudT7";
+export const EMAIL_HOST = process.env.VERCEL_EMAIL_HOST || "smtp-relay.brevo.com";
+export const EMAIL_USERNAME = process.env.VERCEL_EMAIL_USERNAME || "7e2da2001@smtp-brevo.com";
+export const EMAIL_PASSWORD = process.env.VERCEL_EMAIL_PASSWORD || "AEwyY6LDtZj8phqU";
 export const NODEMAILER_TOKEN = process.env.NODEMAILER_TOKEN || "";
-
+ 
 
  
 

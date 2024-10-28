@@ -6,7 +6,7 @@ import { EMAIL_HOST, EMAIL_USERNAME, EMAIL_PASSWORD } from '../secret'; // Impor
 const transporter = nodemailer.createTransport({
   host: EMAIL_HOST,
   port: 587,
-  secure: false,
+  secure: true,
   auth: {
       user: EMAIL_USERNAME,
       pass: EMAIL_PASSWORD
@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
 export const sendVerificationEmail = async (email: string, verificationLink: string) => {
   console.log({EMAIL_HOST, EMAIL_USERNAME, EMAIL_PASSWORD});
   const defaulMailOptions =  {
-    from: '"Abdul Azis 21001" <grover.durgan58@ethereal.email>', 
+    from: '"Abdul Azis 21001" <no-reply@kulijawa.online>', 
     to: email, 
     subject: 'Email Verification', 
     text: "Email Verification",
